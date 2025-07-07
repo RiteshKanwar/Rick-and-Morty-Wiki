@@ -90,10 +90,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - The Rick and Morty community for the inspiration
 - Jetpack Compose team for the amazing UI toolkit
 
-## 📞 Contact
-
-If you have any questions or suggestions, feel free to reach out!
-
 ---
 
 ⭐ If you found this project helpful, please give it a star!
