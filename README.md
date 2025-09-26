@@ -58,10 +58,10 @@ git clone https://github.com/yourusername/rick-and-morty-wiki.git
 5. **Offline Browsing**: Previously viewed content remains accessible without internet connection
 
 ## 📸 Screenshots
-![Home Screen](assets/screenshot_1.png)  
-![AllEpisode Screen](assets/screenshot_2.png)  
-![Search Screen](assets/screenshot_3.png)  
-![Character Detail Screen](assets/screenshot_4.png) 
+| Home Screen | AllEpisode Screen | Search Screen | Character Detail Screen |
+|-------------|-------------------|---------------|-------------------------|
+| ![Home Screen](assets/screenshot_1.png) | ![AllEpisode Screen](assets/screenshot_2.png) | ![Search Screen](assets/screenshot_3.png) | ![Character Detail Screen](assets/screenshot_4.png) |
+
 
 ## 🏗️ Architecture
 
