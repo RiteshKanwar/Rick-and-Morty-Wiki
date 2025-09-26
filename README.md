@@ -1,6 +1,5 @@
 # Rick and Morty Wikipedia App
-
-A modern Android application that provides comprehensive information about the Rick and Morty universe by fetching data from the official Rick and Morty REST API. Built entirely with cutting-edge Android technologies for optimal performance and user experience.
+A fun little project. A modern Android application that provides comprehensive information about the Rick and Morty universe by fetching data from the official Rick and Morty REST API. Built entirely with cutting-edge Android technologies for optimal performance and user experience.
 
 ## 📱 What This App Does
 
@@ -59,8 +58,10 @@ git clone https://github.com/yourusername/rick-and-morty-wiki.git
 5. **Offline Browsing**: Previously viewed content remains accessible without internet connection
 
 ## 📸 Screenshots
-
-*Add your app screenshots here*
+![Home Screen](assets/screenshot_1.png)  
+![AllEpisode Screen](assets/screenshot_2.png)  
+![Search Screen](assets/screenshot_3.png)  
+![Character Detail Screen](assets/screenshot_4.png) 
 
 ## 🏗️ Architecture
 
