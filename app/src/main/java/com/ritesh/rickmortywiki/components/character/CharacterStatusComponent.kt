@@ -2,12 +2,18 @@ package com.ritesh.rickmortywiki.components.character
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,21 +28,31 @@ import com.ritesh.rickmortywiki.ui.theme.RickMortyWikiTheme
 import com.ritesh.rickmortywiki.ui.theme.RickTextPrimary
 
 @Composable
-fun CharacterStatusComponent(characterStatus: CharacterStatus){
-    Row (
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .background(
-                color = characterStatus.color,
-                shape = RoundedCornerShape(12.dp)
+fun CharacterStatusComponent(characterStatus: CharacterStatus) {
+    AssistChip(
+        onClick = { },
+        label = {
+            Text(
+                text = "Status: ${characterStatus.displayName}",
+                style = MaterialTheme.typography.labelMedium
             )
-            .padding(horizontal = 12.dp, vertical = 4.dp)
-    ) {
-        Text(text = "Status: ${characterStatus.displayName}",
-            fontSize = 20.sp,
-            color = RickTextPrimary
-        )
-    }
+        },
+        leadingIcon = {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(
+                        color = characterStatus.color,
+                        shape = CircleShape
+                    )
+            )
+        },
+        colors = AssistChipDefaults.assistChipColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            labelColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
+        shape = RoundedCornerShape(16.dp)
+    )
 }
 
 @Preview(showBackground = false)

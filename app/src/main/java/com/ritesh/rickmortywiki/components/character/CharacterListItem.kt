@@ -8,12 +8,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,54 +39,51 @@ fun CharacterListItem(
     character: Character,
     characterDataPoints: List<DataPoint>,
     onClick: () -> Unit
-){
-    Row(
+) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp,
+            pressedElevation = 6.dp
+        ),
+        shape = RoundedCornerShape(16.dp),
         modifier = modifier.height(140.dp)
-            .border(
-                width = 1.dp,
-                brush = Brush.horizontalGradient(listOf(Color.Transparent, RickAction)),
-                shape = RoundedCornerShape(12.dp)
-            )
-            .clip(RoundedCornerShape(12.dp))
-            .clickable { onClick() }
     ) {
-        Box{
-            CharacterImage(
-                imageUrl = character.imageUrl,
-                modifier = Modifier
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(12.dp))
-            )
-            CharacterStatusCircle(
-                status = character.status,
-                modifier = Modifier
-                    .padding(
-                        start = 6.dp,
-                        top = 6.dp
-                    )
-            )
-        }
-        LazyHorizontalGrid(
-            rows = GridCells.Fixed(2),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
-            content = {
+        Row(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box {
+                CharacterImage(
+                    imageUrl = character.imageUrl,
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(16.dp))
+                )
+                CharacterStatusCircle(
+                    status = character.status,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(2),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 items(
                     items = listOf(
-                        DataPoint(
-                            title = "Name",
-                            description = character.name
-                        )
+                        DataPoint("Name", character.name)
                     ) + characterDataPoints,
                     key = { it.hashCode() }
-            ) {dataPoint ->
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.padding(end = 16.dp)
-                ){
+                ) { dataPoint ->
                     DataPointComponent(dataPoint = sanitizeDataPoint(dataPoint))
                 }
             }
-        })
+        }
     }
 }
 

@@ -7,12 +7,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,34 +28,60 @@ import com.ritesh.rickmortywiki.components.common.DataPointComponent
 import com.ritesh.rickmortywiki.ui.theme.RickTextPrimary
 
 @Composable
-fun EpisodeRowComponent(episode: Episode){
-    Row (modifier = Modifier.padding(top = 10.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically){
-        DataPointComponent(
-            dataPoint = DataPoint(
-                title = "Episode",
-                description = episode.episodeNumber.toString()
-            )
-        )
-        Spacer(modifier = Modifier.width(64.dp))
-        Column {
-            Text(
-                text = episode.name,
-                fontSize = 24.sp,
-                color = RickTextPrimary,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Text(
-                text = episode.airDate,
-                fontSize = 16.sp,
-                color = RickTextPrimary,
-                fontStyle = FontStyle.Italic,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
-            )
+fun EpisodeRowComponent(episode: Episode) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        ),
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = episode.episodeNumber.toString(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = episode.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = episode.airDate,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontStyle = FontStyle.Italic
+                )
+            }
         }
     }
 }
+
 @Preview
 @Composable
 private fun EpisodeRowComponentPreview() {

@@ -34,7 +34,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ritesh.network.models.domain.Character
 import com.ritesh.rickmortywiki.components.character.CharacterGridItem
 import com.ritesh.rickmortywiki.components.common.LoadingState
-import com.ritesh.rickmortywiki.components.common.SimpleToolbar
 import com.ritesh.rickmortywiki.view_models.HomeScreenViewModel
 
 sealed interface HomeScreenViewState{
@@ -60,7 +59,7 @@ fun HomeScreen(
         derivedStateOf {
             // If the list is at the top (scroll offset is 0), set padding to 60.dp.
             // If the user starts scrolling (scroll offset > 0), set padding to 0.dp.
-            if (scrollState.firstVisibleItemScrollOffset == 0) 60.dp else 0.dp
+            if (scrollState.firstVisibleItemScrollOffset == 0) 90.dp else 0.dp
         }
     }
     val fetchNextPage: Boolean by remember {
@@ -115,5 +114,4 @@ fun HomeScreen(
             }
         }
     }
-
 }

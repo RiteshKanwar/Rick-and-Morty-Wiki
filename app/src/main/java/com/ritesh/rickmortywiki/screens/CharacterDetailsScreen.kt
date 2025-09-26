@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -15,11 +16,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,7 +58,6 @@ import com.ritesh.rickmortywiki.components.common.CharacterImage
 import com.ritesh.rickmortywiki.components.common.DataPoint
 import com.ritesh.rickmortywiki.components.common.DataPointComponent
 import com.ritesh.rickmortywiki.components.common.LoadingState
-import com.ritesh.rickmortywiki.components.common.SimpleToolbar
 import com.ritesh.rickmortywiki.repositories.CharacterRepository
 import com.ritesh.rickmortywiki.ui.theme.RickAction
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -107,112 +118,99 @@ sealed interface CharacterDetailsViewState{
     ): CharacterDetailsViewState
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CharacterDetailsScreen (
+fun CharacterDetailsScreen(
     characterId: Int,
     viewModel: CharacterDetailsViewModel = hiltViewModel(),
     onEpisodeClicked: (Int) -> Unit,
     onBackClicked: () -> Unit,
 ) {
-
     LaunchedEffect(key1 = Unit, block = {
         viewModel.fetchCharacter(characterId)
     })
+
     val state by viewModel.stateFlow.collectAsState()
-    val coroScope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
-    val overscrollEffect = remember(coroScope) { VerticalOverscroll(coroScope) }
+    val scrollState = rememberLazyListState()
 
-    val topPadding = remember {
-        derivedStateOf {
-            // If the list is at the top (scroll offset is 0), set padding to 60.dp.
-            // If the user starts scrolling (scroll offset > 0), set padding to 0.dp.
-            if (listState.firstVisibleItemScrollOffset == 0) 60.dp else 0.dp
-        }
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn (
-            state = listState,
-            userScrollEnabled = false,
-            modifier =
-            Modifier.fillMaxSize()
-                .padding(top = topPadding.value) // Apply top padding
-                .zIndex(0f)
-                .overscroll(overscrollEffect)
-                .scrollable(
-                    orientation = Orientation.Vertical,
-                    reverseDirection = true,
-                    state = listState,
-                    overscrollEffect = overscrollEffect
-                )
-                ,
-            contentPadding = PaddingValues(all = 16.dp)
-        ) {
-            when (val viewState = state){
-                CharacterDetailsViewState.Loading -> item{ LoadingState() }
-                is CharacterDetailsViewState.Error -> {
-                    //Todo
-                }
-                is CharacterDetailsViewState.Success -> {
-
-                    // Name Plate
-                    item {
-                        CharacterDetailsNamePlateComponent(
-                            name = viewState.character.name,
-                            status = viewState.character.status
+    LazyColumn(
+        state = scrollState,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 90.dp),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        when (val viewState = state) {
+            CharacterDetailsViewState.Loading -> item { LoadingState() }
+            is CharacterDetailsViewState.Error -> {
+                item {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = viewState.message,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(16.dp)
                         )
                     }
-                    item{ Spacer(modifier = Modifier.height(8.dp)) }
+                }
+            }
+            is CharacterDetailsViewState.Success -> {
+                item {
+                    CharacterDetailsNamePlateComponent(
+                        name = viewState.character.name,
+                        status = viewState.character.status
+                    )
+                }
 
-                    //Character Image
-                    item{
-                        CharacterImage(imageUrl = viewState.character.imageUrl)
+                item {
+                    CharacterImage(imageUrl = viewState.character.imageUrl)
+                }
+
+                items(viewState.characterDataPoints) { dataPoint ->
+                    DataPointComponent(dataPoint = dataPoint)
+                }
+
+                item {
+                    // Material 3 Expressive Button
+                    Button(
+                        onClick = { onEpisodeClicked(characterId) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        shape = RoundedCornerShape(20.dp),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 6.dp,
+                            pressedElevation = 12.dp,
+                            hoveredElevation = 8.dp
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.PlayArrow,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "View All Episodes",
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
-
-                    //Data Points
-                    items(viewState.characterDataPoints){
-                        Spacer(modifier = Modifier.height(32.dp))
-                        DataPointComponent(dataPoint = it)
-                    }
-
-                    item{ Spacer(modifier = Modifier.height(32.dp)) }
-
-                    // Button
-                    item {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(), // Ensures the Box takes up the full width
-                            contentAlignment = Alignment.Center // Centers content within the Box
-                        ) {
-                            Text(
-                                text = "View All Episodes",
-                                color = RickAction,
-                                fontSize = 18.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .border(
-                                        width = 1.dp,
-                                        color = RickAction,
-                                        shape = RoundedCornerShape(12.dp)
-                                    )
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .clickable {
-                                        onEpisodeClicked(characterId)
-                                    }
-                                    .padding(vertical = 10.dp, horizontal = 25.dp)
-                            )
-                        }
-                    }
-                    item{ Spacer(modifier = Modifier.height(64.dp))}
+                }
+                item {
+                    Spacer(
+                        modifier = Modifier.height(74.dp)
+                    )
                 }
             }
         }
-
-
     }
-
-
 }
 
 

@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,34 +27,42 @@ import com.ritesh.network.models.domain.CharacterStatus
 import com.ritesh.rickmortywiki.components.common.CharacterImage
 import com.ritesh.rickmortywiki.ui.theme.RickAction
 
+
 @Composable
-fun CharacterGridItem (
+fun CharacterGridItem(
     modifier: Modifier,
     character: Character,
     onClick: () -> Unit
-){
-    Column(
+) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 4.dp,
+            pressedElevation = 8.dp
+        ),
+        shape = RoundedCornerShape(16.dp),
         modifier = modifier
-            .border(
-                width = 1.dp,
-                brush = Brush.verticalGradient(listOf(Color.Transparent, RickAction)),
-                shape = RoundedCornerShape(12.dp)
+    ) {
+        Column {
+            Box {
+                CharacterImage(imageUrl = character.imageUrl)
+                CharacterStatusCircle(
+                    status = character.status,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+            Text(
+                text = character.name,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(12.dp),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
-            .clip(RoundedCornerShape(12.dp))
-            .clickable { onClick() }
-    ){
-        Box{
-            CharacterImage(imageUrl = character.imageUrl)
-            CharacterStatusCircle(status = character.status, modifier = Modifier.padding(start = 6.dp, top = 6.dp))
         }
-        Text(
-            text = character.name,
-            color = RickAction,
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
-            lineHeight = 26.sp,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
-        )
     }
 }
 @Preview

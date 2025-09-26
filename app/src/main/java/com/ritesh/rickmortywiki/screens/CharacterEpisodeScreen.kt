@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,7 +23,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -46,132 +51,137 @@ import com.ritesh.rickmortywiki.components.common.CharacterNameComponent
 import com.ritesh.rickmortywiki.components.common.DataPoint
 import com.ritesh.rickmortywiki.components.common.DataPointComponent
 import com.ritesh.rickmortywiki.components.common.LoadingState
-import com.ritesh.rickmortywiki.components.common.SimpleToolbar
 import com.ritesh.rickmortywiki.components.episode.EpisodeRowComponent
-import com.ritesh.rickmortywiki.ui.theme.RickTextPrimary
 import kotlinx.coroutines.launch
 
+// CharacterEpisodeScreen.kt
 @Composable
-fun CharacterEpisodeScreen(characterId: Int, ktorClient: KtorClient, onBackClicked: () -> Unit){
+fun CharacterEpisodeScreen(
+    characterId: Int,
+    ktorClient: KtorClient,
+    onBackClicked: () -> Unit
+) {
     var characterState by remember { mutableStateOf<Character?>(null) }
     var episodeState by remember { mutableStateOf<List<Episode>>(emptyList()) }
 
     LaunchedEffect(key1 = Unit, block = {
         ktorClient.getCharacter(characterId).onSuccess { character ->
             characterState = character
-            launch{
+            launch {
                 ktorClient.getEpisodes(character.episodeIds).onSuccess { episode ->
-                    episodeState =  episode
+                    episodeState = episode
                 }.onFailure {
-                    //todo handle exception
+                    // Handle exception
                 }
             }
         }.onFailure {
-            //todo handle exception
+            // Handle exception
         }
     })
+
     characterState?.let { character ->
         MainScreen(character = character, episodes = episodeState, onBackClicked)
     } ?: LoadingState()
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainScreen(character: Character, episodes: List<Episode>, onBackClicked: () -> Unit) {
-    val coroScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
-    val overscrollEffect = remember(coroScope) { VerticalOverscroll(coroScope) }
 
     val topStickyHeaderPadding = remember {
         derivedStateOf {
-            // If the list is at the top (scroll offset is 0), set padding to 60.dp.
-            // If the user starts scrolling (scroll offset > 0), set padding to 0.dp.
-            if (listState.firstVisibleItemScrollOffset == 0) 8.dp else 70.dp
+            if (listState.firstVisibleItemScrollOffset == 0) 8.dp else 110.dp
         }
     }
     val topToolBarPadding = remember {
         derivedStateOf {
-            // If the list is at the top (scroll offset is 0), set padding to 60.dp.
-            // If the user starts scrolling (scroll offset > 0), set padding to 0.dp.
-            if (listState.firstVisibleItemScrollOffset == 0) 60.dp else 0.dp
+            if (listState.firstVisibleItemScrollOffset == 0) 90.dp else 0.dp
         }
     }
     val episodeBySeasonMap = episodes.groupBy { it.seasonNumber }
-    Box(modifier = Modifier.fillMaxSize()  ) {
-        LazyColumn (
-            state = listState,
-            userScrollEnabled = false,
-            modifier =
-            Modifier.fillMaxWidth()
-                .overscroll(overscrollEffect)
-                .scrollable(
-                    orientation = Orientation.Vertical,
-                    reverseDirection = true,
-                    state = listState,
-                    overscrollEffect = overscrollEffect
-                )
-                .padding(top = topToolBarPadding.value) // Apply top padding
-                .zIndex(0f),
-            contentPadding = PaddingValues(all = 16.dp)
-        ) {
-            item{ CharacterNameComponent(name = character.name)}
-            item{ Spacer(modifier = Modifier.height(8.dp))}
-            item{
-                LazyRow {
-                    episodeBySeasonMap.forEach { mapEntry ->
-                        val title = "Season ${mapEntry.key}"
-                        val description = "${mapEntry.value.size} ep"
-                        item{
-                            DataPointComponent(dataPoint = DataPoint(title, description))
-                            Spacer(modifier = Modifier.width(32.dp))
+
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = topToolBarPadding.value),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            CharacterNameComponent(name = character.name)
+        }
+
+        item {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                episodeBySeasonMap.forEach { mapEntry ->
+                    val title = "Season ${mapEntry.key}"
+                    val description = "${mapEntry.value.size} ep"
+                    item {
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            DataPointComponent(
+                                dataPoint = DataPoint(title, description),
+                                modifier = Modifier.padding(12.dp)
+                            )
                         }
                     }
                 }
             }
-            item{ Spacer(modifier = Modifier.height(16.dp)) }
-            item{ CharacterImage(imageUrl = character.imageUrl)}
-            item{ Spacer(modifier = Modifier.height(8.dp)) }
-
-            episodeBySeasonMap.forEach { mapEntry ->
-                stickyHeader { SeasonHeader(seasonNumber = mapEntry.key, topStickyHeaderPadding.value)}
-                item{ Spacer(modifier = Modifier.height(16.dp)) }
-                items(mapEntry.value){ episode ->
-                    EpisodeRowComponent(episode = episode)
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-            }
-
         }
 
+        item {
+            CharacterImage(imageUrl = character.imageUrl)
+        }
 
-    }
-    Column {
-
-
+        episodeBySeasonMap.forEach { mapEntry ->
+            stickyHeader {
+                SeasonHeader(
+                    seasonNumber = mapEntry.key,
+                    topPadding = topStickyHeaderPadding.value
+                )
+            }
+            items(mapEntry.value) { episode ->
+                EpisodeRowComponent(episode = episode)
+            }
+        }
+        item {
+            Spacer(
+                modifier = Modifier.height(74.dp)
+            )
+        }
     }
 }
 
 @Composable
-private fun SeasonHeader(seasonNumber: Int, topPadding : Dp ){
-    Row(
+private fun SeasonHeader(seasonNumber: Int, topPadding: Dp) {
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(top = topPadding, bottom = 16.dp)
+            .padding(top = topPadding, bottom = 16.dp),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shadowElevation = 0.dp,
+        shape = RoundedCornerShape(12.dp)
     ) {
         Text(
             text = "Season $seasonNumber",
-            color = RickTextPrimary,
-            fontSize = 32.sp,
-            lineHeight = 32.sp,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .border(
-                    width = 1.dp,
-                    color = RickTextPrimary,
-                    shape = RoundedCornerShape(8.dp)
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(12.dp)
                 )
                 .padding(vertical = 8.dp)
         )
